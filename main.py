@@ -1,4 +1,5 @@
 import os
+import argparse
 from cryptography.fernet import Fernet
 
 def generate_key():
@@ -19,7 +20,7 @@ def encrypt_folder(folder_path, key):
             file_path = os.path.join(root, file_name)
             encrypt_file(file_path, key)
 
-def generate_decrypt_script(folder_to_encrypt, key):
+def generate_decrypt_script(folder_to_encrypt, key, output):
     script = f"""
 import os
 from cryptography.fernet import Fernet
@@ -45,15 +46,19 @@ decrypt_folder(folder_to_decrypt, key)
 print('Decryption complete!')
 """
 
-    with open("decrypt.py", "w") as script_file:
+    with open(ouput, "w") as script_file:
         script_file.write(script)
 
 key = generate_key()
-folder_to_encrypt = input("Enter the path of the folder to encrypt: ")
+parser = argparse.ArgumentParser(description='Encrypt a folder and generate a decryption script.')
+parser.add_argument('input', type=str, help='Folder to encrypt')
+parser.add_argument('output', type=str, nargs='?', default='decrypt.py', help='Output Python file (default: decrypt.py)')
+args = parser.parse_args()
+folder_to_encrypt = args.input
 
 
 folder_to_encrypt = os.path.abspath(folder_to_encrypt)
 encrypt_folder(folder_to_encrypt, key)
-generate_decrypt_script(folder_to_encrypt, key)
+generate_decrypt_script(folder_to_encrypt, key, args.output)
 
 print("Folder encrypted successfully.")
