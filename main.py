@@ -2,6 +2,13 @@ import os
 import argparse
 from cryptography.fernet import Fernet
 
+# Check if tqdm is available
+try:
+    from tqdm import tqdm
+    tqdm_available = True
+except ImportError:
+    tqdm_available = False
+
 def generate_key():
     return Fernet.generate_key()
 
@@ -15,10 +22,22 @@ def encrypt_file(file_path, key):
     os.remove(file_path)
 
 def encrypt_folder(folder_path, key):
-    for root, _, files in os.walk(folder_path):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            encrypt_file(file_path, key)
+    total_files = sum([len(files) for _, _, files in os.walk(folder_path)])
+
+    if tqdm_available:
+        with tqdm(total=total_files, desc='Encrypting') as pbar:
+            for root, _, files in os.walk(folder_path):
+                for file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    encrypt_file(file_path, key)
+                    pbar.update(1)
+    else:
+        print(f"Encrypting files in {folder_path}...")
+
+        for root, _, files in os.walk(folder_path):
+            for file_name in files:
+                file_path = os.path.join(root, file_name)
+                encrypt_file(file_path, key)
 
 def generate_decrypt_script(folder_to_encrypt, key, output):
     script = f"""
