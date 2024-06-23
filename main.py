@@ -30,7 +30,8 @@ def decrypt_file(file_path, key):
     with open(file_path, "rb") as file:
         encrypted_data = file.read()
     decrypted_data = fernet.decrypt(encrypted_data)
-    with open(file_path[:-10], "wb") as file:
+    output_path = os.path.splitext(file_path)[0]
+    with open(output_path, "wb") as file:
         file.write(decrypted_data)
     os.remove(file_path)
 
@@ -46,7 +47,7 @@ decrypt_folder(folder_to_decrypt, key)
 print('Decryption complete!')
 """
 
-    with open(ouput, "w") as script_file:
+    with open(output, "w") as script_file:
         script_file.write(script)
 
 key = generate_key()
@@ -56,9 +57,8 @@ parser.add_argument('output', type=str, nargs='?', default='decrypt.py', help='O
 args = parser.parse_args()
 folder_to_encrypt = args.input
 
-
 folder_to_encrypt = os.path.abspath(folder_to_encrypt)
 encrypt_folder(folder_to_encrypt, key)
-generate_decrypt_script(folder_to_encrypt, key, args.output)
+generate_decrypt_script(folder_to_encrypt, key, os.path.abspath(args.output))
 
 print("Folder encrypted successfully.")
