@@ -70,14 +70,18 @@ print('Decryption complete!')
         script_file.write(script)
 
 key = generate_key()
-parser = argparse.ArgumentParser(description='Encrypt a folder and generate a decryption script.')
+parser = argparse.ArgumentParser(description='Encrypt a folder and optionally generate a decryption script.')
 parser.add_argument('input', type=str, help='Folder to encrypt')
+parser.add_argument('--no-script', action='store_true', help='Do not generate the decryption script')
 parser.add_argument('output', type=str, nargs='?', default='decrypt.py', help='Output Python file (default: decrypt.py)')
 args = parser.parse_args()
 folder_to_encrypt = args.input
 
 folder_to_encrypt = os.path.abspath(folder_to_encrypt)
 encrypt_folder(folder_to_encrypt, key)
-generate_decrypt_script(folder_to_encrypt, key, os.path.abspath(args.output))
 
-print("Folder encrypted successfully.")
+if args.no_script:
+    print(f"Folder encrypted successfully. Key: {key.decode()}")
+else:
+    generate_decrypt_script(folder_to_encrypt, key, os.path.abspath(args.output))
+    print("Folder encrypted successfully and decryption script generated.")
